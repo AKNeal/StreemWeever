@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Your Site - Tools</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      background: #ffffff;
+      color: #000000;
+    }
+
+    header {
+      background: #000000;
+      color: #ffffff;
+      padding: 20px 40px;
+      border-bottom: 2px solid #00ff88;
+    }
+
+    nav {
+      display: flex;
+      align-items: center;
+      gap: 40px;
+    }
+
+    .logo {
+      font-size: 24px;
+      font-weight: 700;
+      text-decoration: none;
+      color: #ffffff;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 30px;
+      list-style: none;
+    }
+
+    .nav-links a {
+      color: #ffffff;
+      text-decoration: none;
+      font-size: 16px;
+      transition: color 0.2s;
+    }
+
+    .nav-links a:hover {
+      color: #00ff88;
+    }
+
+    main {
+      max-width: 1200px;
+      margin: 60px auto;
+      padding: 0 40px;
+    }
+
+    h1 {
+      font-size: 48px;
+      margin-bottom: 20px;
+    }
+
+    p {
+      font-size: 18px;
+      line-height: 1.6;
+      color: #666666;
+      margin-bottom: 40px;
+    }
+
+    .tool-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 30px;
+      margin-top: 60px;
+    }
+
+    .tool-card {
+      background: #f5f5f5;
+      border: 2px solid #e0e0e0;
+      padding: 30px;
+      text-decoration: none;
+      color: #000000;
+      transition: all 0.3s;
+      border-radius: 8px;
+    }
+
+    .tool-card:hover {
+      border-color: #00ff88;
+      transform: translateY(-4px);
+      box-shadow: 0 8px 20px rgba(0, 255, 136, 0.1);
+    }
+
+    .tool-card h3 {
+      font-size: 24px;
+      margin-bottom: 12px;
+    }
+
+    .tool-card p {
+      font-size: 16px;
+      margin: 0;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <nav>
+      <a href="/" class="logo">Your Site</a>
+      <ul class="nav-links">
+        <li><a href="/">Home</a></li>
+        <li><a href="/mapper.html">Projection Mapper</a></li>
+        <li><a href="#tools">Tools</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <main>
+    <h1>Welcome</h1>
+    <p>Your creative tools and projects.</p>
+
+    <div class="tool-grid">
+      <a href="/mapper.html" class="tool-card">
+        <h3>Projection Mapper</h3>
+        <p>Professional projection mapping tool with corner pinning, surface warping, and real-time preview.</p>
+      </a>
+
+      <!-- Add more tool cards here as you build them -->
+    </div>
+  </main>
+</body>
+</html>
