@@ -127,7 +127,7 @@ export default function PodcastStudio() {
           <div className="flex items-center justify-between mb-4">
             <h1 className="text-2xl font-bold">Streem Weever</h1>
             <a 
-              href="/mapper/" 
+              href="https://akneal.github.io/mapper/" 
               target="_blank" 
               rel="noopener noreferrer"
               className="flex items-center gap-2 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 rounded-lg transition"
