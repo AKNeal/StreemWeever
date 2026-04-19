@@ -1,0 +1,551 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Streemweever — Find where to stream anything</title>
+<meta name="description" content="A directory of movies and TV shows and the streaming services that carry them." />
+<style>
+  :root {
+    --bg: #0b0d12;
+    --bg-2: #10131a;
+    --panel: #161a24;
+    --panel-2: #1c2130;
+    --border: #262c3a;
+    --text: #eef1f7;
+    --muted: #8a93a6;
+    --accent: #ff3d6e;
+    --accent-2: #7c5cff;
+    --chip: #222838;
+    --chip-on: #ff3d6e;
+
+    /* streaming brand colors */
+    --netflix:   #e50914;
+    --hulu:      #1ce783;
+    --prime:     #00a8e1;
+    --disney:    #1f80e0;
+    --max:       #b026ff;
+    --apple:     #c7c7c7;
+    --peacock:   #ffb400;
+    --paramount: #0064ff;
+  }
+
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    background:
+      radial-gradient(1200px 600px at 10% -10%, rgba(124,92,255,0.18), transparent 60%),
+      radial-gradient(900px 500px at 100% 0%, rgba(255,61,110,0.15), transparent 60%),
+      var(--bg);
+    color: var(--text);
+    font-family: "Inter", "Segoe UI", -apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    min-height: 100vh;
+  }
+
+  .wrap {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 28px 24px 80px;
+  }
+
+  /* ---------- Header ---------- */
+  header.top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 28px;
+  }
+  .brand {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-weight: 800;
+    letter-spacing: 0.5px;
+    font-size: 20px;
+  }
+  .brand .logo {
+    width: 32px; height: 32px; border-radius: 9px;
+    background: conic-gradient(from 210deg, var(--accent), var(--accent-2), var(--accent));
+    box-shadow: 0 6px 20px rgba(255,61,110,0.35);
+    position: relative;
+  }
+  .brand .logo::after{
+    content:""; position:absolute; inset:6px; border-radius:5px;
+    background: var(--bg);
+  }
+  .brand .logo::before{
+    content:"S"; position:absolute; inset:0; display:flex; align-items:center; justify-content:center;
+    font-size:14px; font-weight:900; color:var(--text); z-index:1;
+  }
+  nav .muted { color: var(--muted); font-size: 14px; }
+
+  /* ---------- Hero ---------- */
+  .hero {
+    padding: 36px 28px 32px;
+    border-radius: 20px;
+    background:
+      linear-gradient(135deg, rgba(124,92,255,0.18), rgba(255,61,110,0.10) 60%, transparent),
+      var(--panel);
+    border: 1px solid var(--border);
+    margin-bottom: 24px;
+  }
+  .hero h1 {
+    margin: 0 0 8px;
+    font-size: clamp(28px, 4vw, 44px);
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+  }
+  .hero h1 .grad {
+    background: linear-gradient(90deg, var(--accent), var(--accent-2));
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+  }
+  .hero p { color: var(--muted); margin: 0 0 20px; max-width: 640px; font-size: 15px; }
+
+  .search {
+    display: flex; align-items: center; gap: 10px;
+    background: var(--bg-2);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 10px 14px;
+    max-width: 640px;
+  }
+  .search svg { flex: none; opacity: 0.7; }
+  .search input {
+    flex: 1; background: transparent; border: 0; outline: 0;
+    color: var(--text); font-size: 16px; padding: 6px 4px;
+  }
+  .search kbd {
+    background: var(--panel-2); color: var(--muted);
+    border: 1px solid var(--border); border-radius: 6px;
+    padding: 2px 6px; font-size: 11px;
+  }
+
+  /* ---------- Filters ---------- */
+  .filters {
+    margin: 22px 0 18px;
+    display: flex; flex-direction: column; gap: 12px;
+  }
+  .filter-row {
+    display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+  }
+  .filter-label {
+    font-size: 12px; color: var(--muted); text-transform: uppercase;
+    letter-spacing: 0.12em; min-width: 72px;
+  }
+  .chip {
+    border: 1px solid var(--border);
+    background: var(--chip);
+    color: var(--text);
+    padding: 6px 12px;
+    border-radius: 999px;
+    font-size: 13px;
+    cursor: pointer;
+    transition: transform .08s ease, background .15s ease, border-color .15s ease;
+    user-select: none;
+    display: inline-flex; align-items: center; gap: 6px;
+  }
+  .chip:hover { transform: translateY(-1px); border-color: #3a4256; }
+  .chip.on {
+    background: linear-gradient(90deg, var(--accent), var(--accent-2));
+    border-color: transparent;
+    color: white;
+  }
+  .chip .dot {
+    width: 8px; height: 8px; border-radius: 50%;
+    display: inline-block; background: var(--muted);
+  }
+
+  /* ---------- Results meta ---------- */
+  .meta-row {
+    display: flex; justify-content: space-between; align-items: center;
+    margin: 18px 0 12px;
+    color: var(--muted); font-size: 13px;
+  }
+  .reset-btn {
+    background: transparent; border: 1px solid var(--border);
+    color: var(--muted); padding: 6px 10px; border-radius: 8px;
+    font-size: 12px; cursor: pointer;
+  }
+  .reset-btn:hover { color: var(--text); border-color: #3a4256; }
+
+  /* ---------- Grid ---------- */
+  .grid {
+    display: grid;
+    gap: 18px;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  }
+  .card {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    overflow: hidden;
+    display: flex; flex-direction: column;
+    transition: transform .12s ease, border-color .15s ease, box-shadow .2s ease;
+  }
+  .card:hover {
+    transform: translateY(-2px);
+    border-color: #3a4256;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.35);
+  }
+
+  .poster {
+    aspect-ratio: 2 / 3;
+    position: relative;
+    display: flex; align-items: flex-end;
+    padding: 14px;
+    color: white;
+    font-weight: 800;
+    font-size: 20px;
+    line-height: 1.15;
+    letter-spacing: -0.01em;
+    text-shadow: 0 2px 10px rgba(0,0,0,0.5);
+    overflow: hidden;
+  }
+  .poster::after{
+    content:""; position:absolute; inset:0;
+    background: linear-gradient(180deg, transparent 40%, rgba(0,0,0,0.55));
+  }
+  .poster .title-on-poster { position: relative; z-index: 1; }
+  .poster .type-badge {
+    position: absolute; top: 10px; left: 10px; z-index: 1;
+    font-size: 10px; letter-spacing: .14em; text-transform: uppercase;
+    background: rgba(0,0,0,0.45); border: 1px solid rgba(255,255,255,0.2);
+    padding: 3px 8px; border-radius: 999px;
+    backdrop-filter: blur(4px);
+  }
+
+  .card .body { padding: 12px 14px 14px; }
+  .card h3 {
+    margin: 0 0 4px; font-size: 15px; font-weight: 700;
+  }
+  .card .sub {
+    color: var(--muted); font-size: 12px;
+    margin-bottom: 10px;
+    display: flex; gap: 8px; flex-wrap: wrap;
+  }
+  .card .sub .pill {
+    background: var(--panel-2); border: 1px solid var(--border);
+    padding: 2px 7px; border-radius: 6px;
+  }
+
+  .services { display: flex; flex-wrap: wrap; gap: 6px; }
+  .svc {
+    font-size: 11px; font-weight: 700; letter-spacing: .04em;
+    color: white;
+    padding: 4px 8px; border-radius: 6px;
+    display: inline-flex; align-items: center;
+  }
+  .svc--netflix   { background: var(--netflix); }
+  .svc--hulu      { background: var(--hulu); color: #06301b; }
+  .svc--prime     { background: var(--prime); }
+  .svc--disney    { background: var(--disney); }
+  .svc--max       { background: var(--max); }
+  .svc--apple     { background: var(--apple); color: #111; }
+  .svc--peacock   { background: var(--peacock); color: #3a2400; }
+  .svc--paramount { background: var(--paramount); }
+
+  /* ---------- Empty ---------- */
+  .empty {
+    text-align: center;
+    padding: 60px 20px;
+    border: 1px dashed var(--border);
+    border-radius: 14px;
+    color: var(--muted);
+  }
+
+  footer {
+    margin-top: 50px; color: var(--muted); font-size: 12px; text-align: center;
+    line-height: 1.6;
+  }
+  footer a { color: var(--muted); }
+
+  @media (max-width: 520px) {
+    .filter-label { min-width: 100%; margin-bottom: -4px; }
+    .hero { padding: 28px 20px; }
+  }
+</style>
+</head>
+<body>
+  <div class="wrap">
+
+    <header class="top">
+      <div class="brand">
+        <div class="logo" aria-hidden="true"></div>
+        <span>Streemweever</span>
+      </div>
+      <nav><span class="muted">The streaming directory</span></nav>
+    </header>
+
+    <section class="hero">
+      <h1>Find where to <span class="grad">stream anything</span>.</h1>
+      <p>Search movies and TV shows to see which streaming service has them. Filter by service, genre, or type to discover what's available tonight.</p>
+      <label class="search" for="q">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+        <input id="q" type="search" placeholder="Search a title, e.g. Severance, Dune, Ted Lasso…" autocomplete="off" />
+        <kbd>/</kbd>
+      </label>
+    </section>
+
+    <section class="filters" aria-label="Filters">
+      <div class="filter-row" id="filter-service">
+        <span class="filter-label">Service</span>
+      </div>
+      <div class="filter-row" id="filter-type">
+        <span class="filter-label">Type</span>
+      </div>
+      <div class="filter-row" id="filter-genre">
+        <span class="filter-label">Genre</span>
+      </div>
+    </section>
+
+    <div class="meta-row">
+      <span id="count">—</span>
+      <button class="reset-btn" id="reset">Reset filters</button>
+    </div>
+
+    <main id="grid" class="grid" aria-live="polite"></main>
+    <div id="empty" class="empty" hidden>
+      <strong>No matches.</strong><br />
+      Try a different title or clear a filter.
+    </div>
+
+    <footer>
+      Streemweever · Availability varies by region and changes often — data is illustrative and current as of 2026.<br />
+      Streaming service names and logos are trademarks of their respective owners.
+    </footer>
+  </div>
+
+<script>
+  // ---------------- Data ----------------
+  // Each title lists the streaming services that carry it (US, illustrative).
+  // "services" uses keys that match the .svc-- CSS classes.
+  const SERVICES = [
+    { key: "netflix",   label: "Netflix" },
+    { key: "hulu",      label: "Hulu" },
+    { key: "prime",     label: "Prime Video" },
+    { key: "disney",    label: "Disney+" },
+    { key: "max",       label: "Max" },
+    { key: "apple",     label: "Apple TV+" },
+    { key: "peacock",   label: "Peacock" },
+    { key: "paramount", label: "Paramount+" }
+  ];
+
+  const GENRES = [
+    "Action","Comedy","Drama","Sci-Fi","Fantasy",
+    "Mystery","Thriller","Horror","Romance","Crime","Superhero","Animation"
+  ];
+
+  const TITLES = [
+    // Netflix
+    { title:"Stranger Things", year:2016, type:"TV",    genres:["Sci-Fi","Horror","Drama"], services:["netflix"],
+      grad:["#1a0033","#7a0010"] },
+    { title:"Wednesday", year:2022, type:"TV",           genres:["Comedy","Mystery","Fantasy"], services:["netflix"],
+      grad:["#0a0a0a","#4a004a"] },
+    { title:"Squid Game", year:2021, type:"TV",          genres:["Thriller","Drama"], services:["netflix"],
+      grad:["#e50914","#1a1a1a"] },
+    { title:"The Crown", year:2016, type:"TV",           genres:["Drama"], services:["netflix"],
+      grad:["#0d253f","#b8860b"] },
+    { title:"Glass Onion", year:2022, type:"Movie",      genres:["Mystery","Comedy","Crime"], services:["netflix"],
+      grad:["#6a0dad","#e67e22"] },
+    { title:"Bridgerton", year:2020, type:"TV",          genres:["Romance","Drama"], services:["netflix"],
+      grad:["#7b2d5a","#f1c6d9"] },
+
+    // Hulu
+    { title:"The Bear", year:2022, type:"TV",            genres:["Drama","Comedy"], services:["hulu","disney"],
+      grad:["#0b3d0b","#ff9a00"] },
+    { title:"Only Murders in the Building", year:2021, type:"TV", genres:["Comedy","Mystery"], services:["hulu"],
+      grad:["#1a1a40","#c2185b"] },
+    { title:"The Handmaid's Tale", year:2017, type:"TV", genres:["Drama","Thriller"], services:["hulu"],
+      grad:["#3a0000","#aa0000"] },
+    { title:"Shōgun", year:2024, type:"TV",              genres:["Drama","Action"], services:["hulu","disney"],
+      grad:["#111","#7a0000"] },
+
+    // Prime Video
+    { title:"The Boys", year:2019, type:"TV",            genres:["Action","Superhero","Drama"], services:["prime"],
+      grad:["#0c1f4d","#b20000"] },
+    { title:"Reacher", year:2022, type:"TV",             genres:["Action","Thriller","Crime"], services:["prime"],
+      grad:["#1e293b","#0369a1"] },
+    { title:"The Marvelous Mrs. Maisel", year:2017, type:"TV", genres:["Comedy","Drama"], services:["prime"],
+      grad:["#4b1d7a","#f2c14e"] },
+    { title:"Fallout", year:2024, type:"TV",             genres:["Sci-Fi","Drama","Action"], services:["prime"],
+      grad:["#3b2a14","#f5b041"] },
+
+    // Disney+
+    { title:"The Mandalorian", year:2019, type:"TV",     genres:["Sci-Fi","Action"], services:["disney"],
+      grad:["#1a1a1a","#8a6d3b"] },
+    { title:"Loki", year:2021, type:"TV",                genres:["Sci-Fi","Fantasy","Superhero"], services:["disney"],
+      grad:["#0b3d1f","#d4af37"] },
+    { title:"Andor", year:2022, type:"TV",               genres:["Sci-Fi","Drama","Action"], services:["disney"],
+      grad:["#1b263b","#415a77"] },
+    { title:"Avengers: Endgame", year:2019, type:"Movie", genres:["Action","Superhero","Sci-Fi"], services:["disney"],
+      grad:["#3a0e0e","#1b4b8c"] },
+
+    // Max
+    { title:"Succession", year:2018, type:"TV",          genres:["Drama","Comedy"], services:["max"],
+      grad:["#0b0e1a","#7a5fa0"] },
+    { title:"House of the Dragon", year:2022, type:"TV", genres:["Fantasy","Drama","Action"], services:["max"],
+      grad:["#2a0000","#c97b1f"] },
+    { title:"The Last of Us", year:2023, type:"TV",      genres:["Drama","Horror","Thriller"], services:["max"],
+      grad:["#2b3a1f","#6b8e23"] },
+    { title:"Dune: Part Two", year:2024, type:"Movie",   genres:["Sci-Fi","Action"], services:["max"],
+      grad:["#8a4b1f","#f1c27d"] },
+    { title:"Barbie", year:2023, type:"Movie",           genres:["Comedy","Fantasy","Romance"], services:["max"],
+      grad:["#ff4fa3","#ffd1e3"] },
+
+    // Apple TV+
+    { title:"Ted Lasso", year:2020, type:"TV",           genres:["Comedy","Drama"], services:["apple"],
+      grad:["#0b3d91","#f2c14e"] },
+    { title:"Severance", year:2022, type:"TV",           genres:["Sci-Fi","Thriller","Mystery"], services:["apple"],
+      grad:["#0a2540","#6aa0c6"] },
+    { title:"Slow Horses", year:2022, type:"TV",         genres:["Thriller","Drama","Crime"], services:["apple"],
+      grad:["#1f2421","#6c7a89"] },
+    { title:"CODA", year:2021, type:"Movie",             genres:["Drama","Romance"], services:["apple"],
+      grad:["#264653","#e9c46a"] },
+
+    // Peacock
+    { title:"The Office", year:2005, type:"TV",          genres:["Comedy"], services:["peacock"],
+      grad:["#4a3412","#ffb400"] },
+    { title:"Poker Face", year:2023, type:"TV",          genres:["Mystery","Comedy","Crime"], services:["peacock"],
+      grad:["#3a0a0a","#e63946"] },
+    { title:"Oppenheimer", year:2023, type:"Movie",      genres:["Drama","Thriller"], services:["peacock"],
+      grad:["#1a1a1a","#b8651f"] },
+
+    // Paramount+
+    { title:"Star Trek: Strange New Worlds", year:2022, type:"TV", genres:["Sci-Fi","Action"], services:["paramount"],
+      grad:["#0b2545","#13315c"] },
+    { title:"Top Gun: Maverick", year:2022, type:"Movie", genres:["Action","Drama"], services:["paramount"],
+      grad:["#1e3a5c","#f6ae2d"] },
+    { title:"Yellowstone", year:2018, type:"TV",         genres:["Drama","Crime"], services:["peacock","paramount"],
+      grad:["#2b1d0e","#9a6b3f"] }
+  ];
+
+  // ---------------- State ----------------
+  const state = {
+    q: "",
+    services: new Set(),  // empty = all
+    types: new Set(),     // empty = all
+    genres: new Set()     // empty = all
+  };
+
+  // ---------------- Render filters ----------------
+  function buildFilterRow(containerId, items, stateKey) {
+    const row = document.getElementById(containerId);
+    items.forEach(it => {
+      const chip = document.createElement("button");
+      chip.type = "button";
+      chip.className = "chip";
+      chip.dataset.value = it.key || it;
+      chip.textContent = it.label || it;
+      chip.addEventListener("click", () => {
+        const v = chip.dataset.value;
+        const set = state[stateKey];
+        if (set.has(v)) set.delete(v); else set.add(v);
+        chip.classList.toggle("on");
+        render();
+      });
+      row.appendChild(chip);
+    });
+  }
+  buildFilterRow("filter-service", SERVICES, "services");
+  buildFilterRow("filter-type",    [{key:"Movie",label:"Movie"},{key:"TV",label:"TV"}], "types");
+  buildFilterRow("filter-genre",   GENRES, "genres");
+
+  // ---------------- Render grid ----------------
+  const grid = document.getElementById("grid");
+  const empty = document.getElementById("empty");
+  const count = document.getElementById("count");
+
+  function matches(t) {
+    if (state.q) {
+      const q = state.q.toLowerCase().trim();
+      if (!t.title.toLowerCase().includes(q)) return false;
+    }
+    if (state.services.size) {
+      if (!t.services.some(s => state.services.has(s))) return false;
+    }
+    if (state.types.size) {
+      if (!state.types.has(t.type)) return false;
+    }
+    if (state.genres.size) {
+      if (!t.genres.some(g => state.genres.has(g))) return false;
+    }
+    return true;
+  }
+
+  function svcLabel(key) {
+    const s = SERVICES.find(s => s.key === key);
+    return s ? s.label : key;
+  }
+
+  function render() {
+    const results = TITLES.filter(matches)
+      .sort((a,b) => a.title.localeCompare(b.title));
+    grid.innerHTML = "";
+    results.forEach(t => {
+      const card = document.createElement("article");
+      card.className = "card";
+
+      const [c1, c2] = t.grad || ["#222","#444"];
+      const poster = document.createElement("div");
+      poster.className = "poster";
+      poster.style.background = `linear-gradient(160deg, ${c1} 0%, ${c2} 100%)`;
+      poster.innerHTML = `
+        <span class="type-badge">${t.type}</span>
+        <span class="title-on-poster">${t.title}</span>
+      `;
+
+      const body = document.createElement("div");
+      body.className = "body";
+      body.innerHTML = `
+        <h3>${t.title}</h3>
+        <div class="sub">
+          <span class="pill">${t.year}</span>
+          ${t.genres.slice(0,2).map(g => `<span class="pill">${g}</span>`).join("")}
+        </div>
+        <div class="services">
+          ${t.services.map(s => `<span class="svc svc--${s}">${svcLabel(s)}</span>`).join("")}
+        </div>
+      `;
+
+      card.appendChild(poster);
+      card.appendChild(body);
+      grid.appendChild(card);
+    });
+
+    count.textContent = results.length
+      ? `${results.length} title${results.length === 1 ? "" : "s"}`
+      : "0 titles";
+    empty.hidden = results.length !== 0;
+  }
+
+  // ---------------- Search ----------------
+  const qInput = document.getElementById("q");
+  qInput.addEventListener("input", (e) => {
+    state.q = e.target.value;
+    render();
+  });
+  // "/" keyboard shortcut to focus search
+  window.addEventListener("keydown", (e) => {
+    if (e.key === "/" && document.activeElement !== qInput) {
+      e.preventDefault();
+      qInput.focus();
+    }
+  });
+
+  // ---------------- Reset ----------------
+  document.getElementById("reset").addEventListener("click", () => {
+    state.q = "";
+    state.services.clear();
+    state.types.clear();
+    state.genres.clear();
+    qInput.value = "";
+    document.querySelectorAll(".chip.on").forEach(c => c.classList.remove("on"));
+    render();
+  });
+
+  render();
+</script>
+</body>
+</html>
